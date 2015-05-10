@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class OutPort {
 
 	public String name;
-	
+	private boolean sent;
 	
 	ArrayList<InPort> recipients = new ArrayList<InPort>();
 	
@@ -14,6 +14,14 @@ public class OutPort {
 	
 	public OutPort(String s) {
 		name = s;
+	}
+
+	public boolean didSend() {
+		return sent;
+	}
+
+	public void reset() {
+		sent = false;
 	}
 	
 	public void connectTo(InPort ip) {
@@ -37,6 +45,7 @@ public class OutPort {
 		for (DelayRecipient dr : delayRecipients) {
 			dr.send();
 		}
+		sent = true;
 	}
 
 }

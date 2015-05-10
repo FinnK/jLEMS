@@ -255,7 +255,15 @@ public class StateInstance implements StateRunnable, ILEMSStateInstance {
 		if (stateType.trackTime) {
 			stateType.startClock();
 		}
-
+		
+		if (outPortHM != null)
+		{
+			for (OutPort port : outPortHM.values())
+			{
+				port.reset();
+			}
+		}
+		
 		if (hasChildren) {
 			for (StateRunnable ch : childA) {
 				ch.advance(this, t, dt);
@@ -456,6 +464,9 @@ public class StateInstance implements StateRunnable, ILEMSStateInstance {
 		if (varHM.containsKey(snm)) {
 			ret = new StateWrapper(this, snm);
 		}
+		if (outPortHM != null && outPortHM.containsKey(snm)) {
+			ret = new StateWrapper(this, snm);			
+		}
 		return ret;
 	}
 
@@ -525,11 +536,16 @@ public class StateInstance implements StateRunnable, ILEMSStateInstance {
 			ret = varHM.get(varname).get();
  				checkReturn(ret, varname);
 			
+		}  else {
+			if (outPortHM != null && outPortHM.containsKey(varname)) {
+				ret = outPortHM.get(varname).didSend() ? 1 : 0;
+					checkReturn(ret, varname);
 		} else {
 			if (parent != null) {
 				ret = parent.getVariable(varname);
  					checkReturn(ret, varname);
-			}
+		}
+		}
 		}
 		}
 		return ret;
@@ -763,7 +779,8 @@ public class StateInstance implements StateRunnable, ILEMSStateInstance {
             ret = childHM.get(snm);
 		
         } else {
-            throw new ContentError("seeking child instance " + snm + " in " + this + " but there are no children");
+            return null;
+        	//throw new ContentError("seeking child instance " + snm + " in " + this + " but there are no children");
         }
         return ret;
     }
